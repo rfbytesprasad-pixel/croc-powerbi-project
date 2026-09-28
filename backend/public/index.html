@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pump Transactions Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f1f1f1; }
+        #status { margin-top: 20px; font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>⛽ Pump Transactions Data</h1>
+    <p>Data fetched directly from the PostgreSQL database via Node.js.</p>
+    
+    <div id="status">Loading data...</div>
+    <div id="tableContainer"></div>
+
+    <script>
+        async function loadData() {
+            const status = document.getElementById('status');
+            const container = document.getElementById('tableContainer');
+            
+            try {
+                // Fetch real data from your Node.js backend
+                const response = await fetch('/api/pump-data');
+                const data = await response.json();
+                
+                if (!data || data.length === 0) {
+                    status.innerText = 'No data found in the table.';
+                    return;
+                }
+
+                status.innerText = `Showing ${data.length} transactions.`;
+
+                // Dynamically build the table based on the returned JSON keys
+                let table = '<table><thead><tr>';
+                const headers = Object.keys(data[0]);
+                headers.forEach(h => table += `<th>${h}</th>`);
+                table += '</tr></thead><tbody>';
+                
+                data.forEach(row => {
+                    table += '<tr>';
+                    headers.forEach(h => {
+                        table += `<td>${row[h] !== null ? row[h] : '-'}</td>`;
+                    });
+                    table += '</tr>';
+                });
+                table += '</tbody></table>';
+                
+                container.innerHTML = table;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                status.innerText = 'Error loading data. Check the browser console for details.';
+            }
+        }
+
+        // Run automatically when the page loads
+        window.onload = loadData;
+    </script>
+</body>
+</html>
